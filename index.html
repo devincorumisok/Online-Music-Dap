@@ -3,14 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>This You?</title>
+    <title>online music dap</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="background"></div>
-    <div class="overlay">
-        <div class="title">This You?</div>
-        <div class="message">Locating...</div>
+    <div class="container">
+        <h1>Online Music Dap</h1>
+        <div class="upload-section">
+            <!-- Remove or hide the "Choose Files" button -->
+            <input type="file" id="file-input" accept="audio/*" multiple>
+            <button id="upload-btn">Upload</button>
+        </div>
+        <div class="playlist-section">
+            <label for="playlist">Select a Song:</label>
+            <select id="playlist">
+                <option value="">Select a song</option>
+            </select>
+        </div>
+        <div class="controls-section">
+            <button id="play-btn">Play</button>
+            <button id="pause-btn">Pause</button>
+            <button id="stop-btn">Stop</button>
+            <button id="prev-btn">Previous</button>
+            <button id="next-btn">Next</button>
+        </div>
+        <div class="effects-section">
+            <label for="volume">Volume</label>
+            <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+            <label for="bass">Bass</label>
+            <input type="range" id="bass" min="-10" max="10" step="0.1" value="0">
+            <label for="mids">Mids</label>
+            <input type="range" id="mids" min="-10" max="10" step="0.1" value="0">
+            <label for="treble">Treble</label>
+            <input type="range" id="treble" min="-10" max="10" step="0.1" value="0">
+        </div>
     </div>
     <script src="script.js"></script>
 </body>

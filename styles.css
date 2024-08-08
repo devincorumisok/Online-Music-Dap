@@ -1,40 +1,90 @@
-/* Basic Reset */
-body, html {
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8d4d8; /* Light pink background */
     margin: 0;
     padding: 0;
-    height: 100%;
-    width: 100%;
-    font-family: 'Roboto', sans-serif;
 }
 
-.background {
-    background: url('background.gif') no-repeat center center fixed;
-    background-size: cover;
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    z-index: -1;
-    overflow: hidden;
-}
-
-.overlay {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    color: #00FF00;
-    text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
     text-align: center;
 }
 
-.title {
-    font-size: 4em;
-    font-weight: bold;
-    font-family: 'Roboto', sans-serif;
+h1 {
+    color: #ff69b4; /* Bright pink */
 }
 
-.message {
-    font-size: 2em;
-    font-family: 'Roboto', sans-serif;
+.upload-section {
+    margin-bottom: 20px;
+}
+
+#file-input {
+    display: none; /* Hide the default file input */
+}
+
+button {
+    background-color: #ff69b4; /* Bright pink */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #ff1493; /* Darker pink on hover */
+}
+
+#choose-file-btn {
+    background-color: #ff1493; /* Darker pink */
+}
+
+#choose-file-btn:hover {
+    background-color: #ff69b4; /* Bright pink on hover */
+}
+
+.playlist-section {
+    margin-bottom: 20px;
+}
+
+#playlist {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ff69b4;
+    border-radius: 5px;
+}
+
+.controls-section {
+    margin-bottom: 20px;
+}
+
+.effects-section {
+    margin-top: 20px;
+}
+
+label {
+    display: block;
+    margin: 10px 0 5px;
+    color: #ff1493;
+}
+
+input[type="range"] {
+    width: 100%;
+    margin: 10px 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    background-color: #ff69b4;
+}
+
+input[type="range"]::-moz-range-thumb {
+    background-color: #ff69b4;
+}
+
+input[type="range"]::-ms-thumb {
+    background-color: #ff69b4;
 }
