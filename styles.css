@@ -1,0 +1,40 @@
+/* Basic Reset */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+}
+
+.background {
+    background: url('background.gif') no-repeat center center fixed;
+    background-size: cover;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: #00FF00;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+    text-align: center;
+}
+
+.title {
+    font-size: 4em;
+    font-weight: bold;
+    font-family: 'Roboto', sans-serif;
+}
+
+.message {
+    font-size: 2em;
+    font-family: 'Roboto', sans-serif;
+}
