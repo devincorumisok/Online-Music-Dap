@@ -11,19 +11,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const bass = context.createBiquadFilter();
     const mid = context.createBiquadFilter();
     const treble = context.createBiquadFilter();
-    
-    // Initialize filter nodes with settings suited for audiophile headphones
+
+    // Initialize filter nodes
     bass.type = 'lowshelf';
-    bass.frequency.setValueAtTime(80, context.currentTime); // Lower bass frequency for deeper bass
-    bass.gain.setValueAtTime(0, context.currentTime); // Default gain
+    bass.frequency.setValueAtTime(100, context.currentTime);
+    bass.gain.setValueAtTime(0, context.currentTime);
 
     mid.type = 'peaking';
-    mid.frequency.setValueAtTime(1000, context.currentTime); // Midrange frequency
-    mid.gain.setValueAtTime(0, context.currentTime); // Default gain
+    mid.frequency.setValueAtTime(1000, context.currentTime);
+    mid.gain.setValueAtTime(0, context.currentTime);
 
     treble.type = 'highshelf';
-    treble.frequency.setValueAtTime(3000, context.currentTime); // Higher treble frequency for clear highs
-    treble.gain.setValueAtTime(0, context.currentTime); // Default gain
+    treble.frequency.setValueAtTime(3000, context.currentTime);
+    treble.gain.setValueAtTime(0, context.currentTime);
 
     // Connect the audio graph
     source.connect(bass);
@@ -34,10 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let playlistSongs = [];
     let songNames = [];
-    let savedPlaylist = [];
+    let currentSongIndex = 0;
     let isRandomPlaying = false;
     let playNext = false;
-    let currentSongIndex = 0;
 
     function playNextSong() {
         if (playlistSongs.length > 0) {
@@ -51,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Audio playback error:', error);
             });
             updatePlaylistUI();
+            scrollToCurrentSong(); // Scroll to the currently playing song
         }
     }
 
@@ -62,17 +62,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Audio playback error:', error);
             });
             updatePlaylistUI();
+            scrollToCurrentSong(); // Scroll to the currently playing song
         }
     }
-    
+
     function updatePlaylist() {
-        playlist.innerHTML = playlistSongs.map((song, index) => 
-            `<div class="playlist-item" data-index="${index}">
-                ${songNames[index]}
-            </div>`
-        ).join('');
+        playlist.innerHTML = playlistSongs.length > 0
+            ? playlistSongs.map((song, index) =>
+                `<div class="playlist-item" data-index="${index}">
+                    ${songNames[index]}
+                </div>`
+            ).join('')
+            : 'No songs uploaded yet.';
+        updatePlaylistUI();
     }
-    
+
     function updatePlaylistUI() {
         document.querySelectorAll('.playlist-item').forEach(item => {
             item.style.backgroundColor = item.dataset.index == currentSongIndex ? '#ffb6c1' : '#fff';
@@ -95,7 +99,37 @@ document.addEventListener('DOMContentLoaded', () => {
             songNames = data.songNames;
             currentSongIndex = data.currentSongIndex;
             updatePlaylist();
-            playNextSong();
+            if (playlistSongs.length > 0) {
+                if (audio.src === '') {
+                    // Start playback immediately with the first song
+                    audio.src = playlistSongs[currentSongIndex];
+                    audio.play().catch(error => {
+                        console.error('Audio playback error:', error);
+                    });
+                    updatePlaylistUI();
+                    scrollToCurrentSong();
+                }
+            }
+        }
+    }
+
+    function scrollToCurrentSong() {
+        const currentItem = document.querySelector(`.playlist-item[data-index="${currentSongIndex}"]`);
+        if (currentItem) {
+            playlist.scrollTop = currentItem.offsetTop - playlist.offsetTop;
+        }
+    }
+
+    function toggleCheckbox(checkedCheckbox) {
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            if (checkbox !== checkedCheckbox) {
+                checkbox.checked = false;
+            }
+        });
+        if (checkedCheckbox.id === 'play-random') {
+            isRandomPlaying = checkedCheckbox.checked;
+        } else if (checkedCheckbox.id === 'play-next') {
+            playNext = checkedCheckbox.checked;
         }
     }
 
@@ -114,73 +148,97 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fileInput.files.length) {
             const files = Array.from(fileInput.files);
             files.forEach(file => {
-                // Add new files to existing playlist
                 const fileURL = URL.createObjectURL(file);
                 playlistSongs.push(fileURL);
                 songNames.push(file.name);
             });
             updatePlaylist();
             if (playlistSongs.length > 0) {
-                audio.src = playlistSongs[currentSongIndex];
-                audio.play().catch(error => {
-                    console.error('Audio playback error:', error);
-                });
+                if (audio.src === '') {
+                    // Start playback immediately with the first song
+                    audio.src = playlistSongs[currentSongIndex];
+                    audio.play().catch(error => {
+                        console.error('Audio playback error:', error);
+                    });
+                    updatePlaylistUI();
+                    scrollToCurrentSong();
+                }
             }
         }
     });
 
-    document.getElementById('play').addEventListener('click', () => {
-        context.resume().then(() => {
-            audio.play().catch(error => {
-                console.error('Audio playback error:', error);
+    document.getElementById('play-pause').addEventListener('click', () => {
+        if (audio.paused) {
+            context.resume().then(() => {
+                audio.play().catch(error => {
+                    console.error('Audio playback error:', error);
+                });
+                document.getElementById('play-pause').textContent = '⏸️'; // Pause icon
             });
-        });
-    });
-
-    document.getElementById('pause').addEventListener('click', () => {
-        audio.pause();
+        } else {
+            audio.pause();
+            document.getElementById('play-pause').textContent = '▶️'; // Play icon
+        }
     });
 
     document.getElementById('previous').addEventListener('click', playPreviousSong);
 
-    document.getElementById('next').addEventListener('click', playNextSong);
-
-    document.getElementById('restart').addEventListener('click', () => {
-        audio.currentTime = 0;
-    });
-
-    document.getElementById('progress').addEventListener('input', (event) => {
-        audio.currentTime = (event.target.value / 100) * audio.duration;
-    });
-
-    audio.addEventListener('timeupdate', () => {
-        document.getElementById('progress').value = (audio.currentTime / audio.duration) * 100;
-        document.getElementById('current-time').textContent = formatTime(audio.currentTime);
-        document.getElementById('duration').textContent = formatTime(audio.duration);
-    });
-
-    audio.addEventListener('ended', () => {
-        if (isRandomPlaying) {
-            playNextSong();  // Play a random song when the current one ends
-        } else if (playNext) {
-            playNextSong();  // Play the next song in the list
+    document.getElementById('next').addEventListener('click', () => {
+        if (playNext) {
+            playNextSong();
+        } else if (isRandomPlaying) {
+            // If play-random is selected, play a random song on next
+            playNextSong();
+        } else {
+            // Normal behavior: skip to the next song
+            playNextSong();
         }
     });
 
-    document.getElementById('bass').addEventListener('input', (event) => {
-        bass.gain.setValueAtTime(event.target.value, context.currentTime);
+    document.getElementById('restart').addEventListener('click', () => {
+        audio.currentTime = 0;
+        audio.play().catch(error => {
+            console.error('Audio playback error:', error);
+        });
     });
 
-    document.getElementById('mid').addEventListener('input', (event) => {
-        mid.gain.setValueAtTime(event.target.value, context.currentTime);
+    document.getElementById('volume').addEventListener('input', (e) => {
+        gainNode.gain.setValueAtTime(e.target.value, context.currentTime);
     });
 
-    document.getElementById('treble').addEventListener('input', (event) => {
-        treble.gain.setValueAtTime(event.target.value, context.currentTime);
+    document.getElementById('bass').addEventListener('input', (e) => {
+        bass.gain.setValueAtTime(e.target.value, context.currentTime);
     });
 
-    document.getElementById('volume').addEventListener('input', (event) => {
-        gainNode.gain.setValueAtTime(event.target.value, context.currentTime);
+    document.getElementById('mid').addEventListener('input', (e) => {
+        mid.gain.setValueAtTime(e.target.value, context.currentTime);
+    });
+
+    document.getElementById('treble').addEventListener('input', (e) => {
+        treble.gain.setValueAtTime(e.target.value, context.currentTime);
+    });
+
+    document.getElementById('play-random').addEventListener('change', (e) => {
+        toggleCheckbox(e.target);
+    });
+
+    document.getElementById('play-next').addEventListener('change', (e) => {
+        toggleCheckbox(e.target);
+    });
+
+    // Update progress bar and time display
+    audio.addEventListener('timeupdate', () => {
+        const progress = document.getElementById('progress');
+        const currentTime = document.getElementById('current-time');
+        const duration = document.getElementById('duration');
+        progress.value = (audio.currentTime / audio.duration) * 100;
+        currentTime.textContent = formatTime(audio.currentTime);
+        duration.textContent = formatTime(audio.duration);
+    });
+
+    document.getElementById('progress').addEventListener('input', (e) => {
+        const progress = e.target.value;
+        audio.currentTime = (progress / 100) * audio.duration;
     });
 
     function formatTime(seconds) {
@@ -189,21 +247,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
 
-    document.getElementById('play-random').addEventListener('change', (event) => {
-        isRandomPlaying = event.target.checked;
-        if (isRandomPlaying) {
-            document.getElementById('play-next').checked = false;
-            playNextSong(); // Start playing a random song immediately
+    // Ensure the `next` button respects the play-random and play-next settings
+    audio.addEventListener('ended', () => {
+        if (playNext || isRandomPlaying) {
+            if (isRandomPlaying) {
+                // Play a random song when the current song ends
+                playNextSong();
+            } else if (playNext) {
+                // Play the next song when the current song ends
+                playNextSong();
+            }
         }
     });
-
-    document.getElementById('play-next').addEventListener('change', (event) => {
-        playNext = event.target.checked;
-        if (playNext) {
-            document.getElementById('play-random').checked = false;
-            playNextSong(); // Start playing the next song immediately
-        }
-    });
-
-    updatePlaylist();
 });

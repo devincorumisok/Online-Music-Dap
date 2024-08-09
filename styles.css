@@ -45,12 +45,28 @@ button:hover {
 
 /* Playlist Section */
 #playlist {
-    background-color: #1e1e1e;
-    color: #f1f1f1;
+    background-color: #1e1e1e; /* Dark background for playlist */
+    color: #f1f1f1; /* Light text color */
     padding: 10px;
     border-radius: 5px;
     min-height: 100px;
+    max-height: 300px;
     overflow-y: auto;
+    overflow-x: hidden;
+    text-align: left;
+    border: 1px solid #ff69b4; /* Border color */
+    margin-bottom: 20px;
+}
+
+.playlist-item {
+    padding: 10px;
+    border-bottom: 1px solid #f1f1f1;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.playlist-item:hover {
+    background-color: #ffb6c1; /* Light pink on hover */
 }
 
 /* Controls Section */
@@ -75,7 +91,7 @@ button:hover {
     font-size: 24px;
     width: 60px;
     height: 60px;
-    line-height: 60px; /* Center text vertically */
+    line-height: 30px; /* Center text vertically */
     text-align: center; /* Center text horizontally */
 }
 
