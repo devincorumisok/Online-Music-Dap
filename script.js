@@ -12,26 +12,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const mid = context.createBiquadFilter();
     const treble = context.createBiquadFilter();
     
-    // Initialize filter nodes
+    // Initialize filter nodes with settings suited for audiophile headphones
     bass.type = 'lowshelf';
-    bass.frequency.setValueAtTime(100, context.currentTime);
-    bass.gain.setValueAtTime(0, context.currentTime);
-    
+    bass.frequency.setValueAtTime(80, context.currentTime); // Lower bass frequency for deeper bass
+    bass.gain.setValueAtTime(0, context.currentTime); // Default gain
+
     mid.type = 'peaking';
-    mid.frequency.setValueAtTime(1000, context.currentTime);
-    mid.gain.setValueAtTime(0, context.currentTime);
-    
+    mid.frequency.setValueAtTime(1000, context.currentTime); // Midrange frequency
+    mid.gain.setValueAtTime(0, context.currentTime); // Default gain
+
     treble.type = 'highshelf';
-    treble.frequency.setValueAtTime(3000, context.currentTime);
-    treble.gain.setValueAtTime(0, context.currentTime);
-    
+    treble.frequency.setValueAtTime(3000, context.currentTime); // Higher treble frequency for clear highs
+    treble.gain.setValueAtTime(0, context.currentTime); // Default gain
+
     // Connect the audio graph
     source.connect(bass);
     bass.connect(mid);
     mid.connect(treble);
     treble.connect(gainNode);
     gainNode.connect(context.destination);
-    
+
     let playlistSongs = [];
     let songNames = [];
     let savedPlaylist = [];
