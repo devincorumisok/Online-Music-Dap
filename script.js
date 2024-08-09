@@ -32,12 +32,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let playlistSongs = [];
     let currentSongIndex = 0;
+    let songNames = [];
+
+    // Activate AudioContext on user interaction
+    document.getElementById('play').addEventListener('click', () => {
+        context.resume().then(() => {
+            audio.play().catch(error => {
+                console.error('Audio playback error:', error);
+            });
+        });
+    });
 
     // Event listener for file upload
     uploadButton.addEventListener('click', () => {
         if (fileInput.files.length) {
             const files = Array.from(fileInput.files);
             playlistSongs = files.map(file => URL.createObjectURL(file));
+            songNames = files.map(file => file.name);
             updatePlaylist();
             if (!audio.src) {
                 playNext();
@@ -49,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePlaylist() {
         playlist.innerHTML = playlistSongs.map((song, index) => 
             `<div class="playlist-item" data-index="${index}">
-                ${playlistSongs[index].split('/').pop()}
+                ${songNames[index]}
             </div>`
         ).join('');
     }
@@ -58,14 +69,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function playNext() {
         if (playlistSongs.length > 0) {
             audio.src = playlistSongs[currentSongIndex];
-            audio.play();
+            audio.play().catch(error => {
+                console.error('Audio playback error:', error);
+            });
             updatePlaylistUI();
         }
     }
 
     // Event listener for play button
     document.getElementById('play').addEventListener('click', () => {
-        audio.play();
+        context.resume().then(() => {
+            audio.play().catch(error => {
+                console.error('Audio playback error:', error);
+            });
+        });
     });
 
     // Event listener for pause button
