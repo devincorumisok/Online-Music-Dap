@@ -3,41 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>online music dap</title>
+    <title>Music Player</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <h1>Online Music Dap</h1>
+
         <div class="upload-section">
-            <!-- Remove or hide the "Choose Files" button -->
+            <label for="file-input">Upload Music</label>
             <input type="file" id="file-input" accept="audio/*" multiple>
-            <button id="upload-btn">Upload</button>
+            <button id="upload-button">Upload</button>
         </div>
+
         <div class="playlist-section">
-            <label for="playlist">Select a Song:</label>
-            <select id="playlist">
-                <option value="">Select a song</option>
-            </select>
+            <h2>Playlist</h2>
+            <div id="playlist">No songs uploaded yet.</div>
         </div>
+
         <div class="controls-section">
-            <button id="play-btn">Play</button>
-            <button id="pause-btn">Pause</button>
-            <button id="stop-btn">Stop</button>
-            <button id="prev-btn">Previous</button>
-            <button id="next-btn">Next</button>
+            <div class="controls-buttons">
+                <button class="control-button" id="previous">&#9664;&#9664;</button>
+                <button class="control-button" id="play">&#9654;</button>
+                <button class="control-button" id="pause">&#10074;&#10074;</button>
+                <button class="control-button" id="next">&#9654;&#9654;</button>
+                <button class="control-button" id="restart">&#8634;</button>
+            </div>
+            
+            <div id="progress-container">
+                <span id="current-time">00:00</span>
+                <input type="range" id="progress" min="0" max="100" value="0">
+                <span id="duration">00:00</span>
+            </div>
         </div>
+
         <div class="effects-section">
+            <h2>Effects</h2>
+            <label for="bass">Bass</label>
+            <input type="range" id="bass" min="-10" max="10" value="0">
+            <label for="mid">Mid</label>
+            <input type="range" id="mid" min="-10" max="10" value="0">
+            <label for="treble">Treble</label>
+            <input type="range" id="treble" min="-10" max="10" value="0">
             <label for="volume">Volume</label>
             <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-            <label for="bass">Bass</label>
-            <input type="range" id="bass" min="-10" max="10" step="0.1" value="0">
-            <label for="mids">Mids</label>
-            <input type="range" id="mids" min="-10" max="10" step="0.1" value="0">
-            <label for="treble">Treble</label>
-            <input type="range" id="treble" min="-10" max="10" step="0.1" value="0">
+        </div>
+
+        <div class="toggle-section">
+            <label>
+                <input type="checkbox" id="play-random"> Play Random
+            </label>
+            <label>
+                <input type="checkbox" id="play-next"> Play Next
+            </label>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>

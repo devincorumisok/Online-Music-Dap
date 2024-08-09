@@ -1,3 +1,4 @@
+/* General Styles */
 body {
     font-family: Arial, sans-serif;
     background-color: #f8d4d8; /* Light pink background */
@@ -12,10 +13,13 @@ body {
     text-align: center;
 }
 
+/* Header Styles */
 h1 {
     color: #ff69b4; /* Bright pink */
+    margin-bottom: 20px;
 }
 
+/* Upload Section */
 .upload-section {
     margin-bottom: 20px;
 }
@@ -39,52 +43,92 @@ button:hover {
     background-color: #ff1493; /* Darker pink on hover */
 }
 
-#choose-file-btn {
-    background-color: #ff1493; /* Darker pink */
-}
-
-#choose-file-btn:hover {
-    background-color: #ff69b4; /* Bright pink on hover */
-}
-
-.playlist-section {
-    margin-bottom: 20px;
-}
-
+/* Playlist Section */
 #playlist {
-    width: 100%;
+    background-color: #1e1e1e;
+    color: #f1f1f1;
     padding: 10px;
-    border: 1px solid #ff69b4;
     border-radius: 5px;
+    min-height: 100px;
+    overflow-y: auto;
 }
 
+/* Controls Section */
 .controls-section {
-    margin-bottom: 20px;
-}
-
-.effects-section {
     margin-top: 20px;
 }
 
-label {
+.controls-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.control-button {
+    background-color: #ff69b4;
+    border: none;
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 24px;
+    width: 60px;
+    height: 60px;
+    line-height: 60px; /* Center text vertically */
+    text-align: center; /* Center text horizontally */
+}
+
+.control-button:hover {
+    background-color: #ff1493;
+}
+
+#progress-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+#progress {
+    width: 80%;
+    margin: 0 10px;
+}
+
+#current-time, #duration {
+    color: #ff69b4; /* Bright pink for time labels */
+    font-size: 14px;
+}
+
+/* Effects Section */
+.effects-section {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.effects-section label {
     display: block;
     margin: 10px 0 5px;
     color: #ff1493;
 }
 
-input[type="range"] {
+.effects-section input[type="range"] {
     width: 100%;
     margin: 10px 0;
 }
 
-input[type="range"]::-webkit-slider-thumb {
-    background-color: #ff69b4;
+/* Toggle Section */
+.toggle-section {
+    margin-top: 20px;
 }
 
-input[type="range"]::-moz-range-thumb {
-    background-color: #ff69b4;
+.toggle-section label {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
 }
 
-input[type="range"]::-ms-thumb {
-    background-color: #ff69b4;
+.toggle-section input[type="checkbox"] {
+    margin-right: 10px;
 }

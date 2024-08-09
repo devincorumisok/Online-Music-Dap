@@ -1,148 +1,148 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
-    const uploadBtn = document.getElementById('upload-btn');
+    const uploadButton = document.getElementById('upload-button');
     const playlist = document.getElementById('playlist');
-    const playBtn = document.getElementById('play-btn');
-    const pauseBtn = document.getElementById('pause-btn');
-    const stopBtn = document.getElementById('stop-btn');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const volumeSlider = document.getElementById('volume');
-    const bassSlider = document.getElementById('bass');
-    const midSlider = document.getElementById('mids');
-    const trebSlider = document.getElementById('treble');
-    
-    let audioFiles = [];
-    let currentTrackIndex = 0;
-    let audioContext, source, gainNode, bassFilter, midFilter, trebleFilter;
+    const audio = new Audio();
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const source = context.createMediaElementSource(audio);
+    const gainNode = context.createGain();
+    const bass = context.createBiquadFilter();
+    const mid = context.createBiquadFilter();
+    const treble = context.createBiquadFilter();
 
-    function setupAudioContext() {
-        audioContext = new AudioContext();
-        gainNode = audioContext.createGain();
-        bassFilter = audioContext.createBiquadFilter();
-        midFilter = audioContext.createBiquadFilter();
-        trebleFilter = audioContext.createBiquadFilter();
+    // Initialize filter nodes
+    bass.type = 'lowshelf';
+    bass.frequency.setValueAtTime(100, context.currentTime); // Set bass frequency
+    bass.gain.setValueAtTime(0, context.currentTime);
 
-        bassFilter.type = 'lowshelf';
-        bassFilter.frequency.setValueAtTime(100, audioContext.currentTime);
+    mid.type = 'peaking';
+    mid.frequency.setValueAtTime(1000, context.currentTime); // Set mid frequency
+    mid.gain.setValueAtTime(0, context.currentTime);
 
-        midFilter.type = 'peaking';
-        midFilter.frequency.setValueAtTime(1000, audioContext.currentTime);
+    treble.type = 'highshelf';
+    treble.frequency.setValueAtTime(3000, context.currentTime); // Set treble frequency
+    treble.gain.setValueAtTime(0, context.currentTime);
 
-        trebleFilter.type = 'highshelf';
-        trebleFilter.frequency.setValueAtTime(3000, audioContext.currentTime);
+    // Connect the audio graph
+    source.connect(bass);
+    bass.connect(mid);
+    mid.connect(treble);
+    treble.connect(gainNode);
+    gainNode.connect(context.destination);
 
-        gainNode.connect(bassFilter);
-        bassFilter.connect(midFilter);
-        midFilter.connect(trebleFilter);
-        trebleFilter.connect(audioContext.destination);
-    }
+    let playlistSongs = [];
+    let currentSongIndex = 0;
 
-    function playCurrentTrack() {
-        if (audioFiles.length > 0) {
-            const selectedOption = playlist.options[currentTrackIndex];
-            const audioUrl = selectedOption.value;
-
-            if (source) {
-                source.disconnect();
+    // Event listener for file upload
+    uploadButton.addEventListener('click', () => {
+        if (fileInput.files.length) {
+            const files = Array.from(fileInput.files);
+            playlistSongs = files.map(file => URL.createObjectURL(file));
+            updatePlaylist();
+            if (!audio.src) {
+                playNext();
             }
-
-            fetch(audioUrl)
-                .then(response => response.arrayBuffer())
-                .then(data => audioContext.decodeAudioData(data))
-                .then(buffer => {
-                    source = audioContext.createBufferSource();
-                    source.buffer = buffer;
-                    source.connect(gainNode);
-                    source.start();
-                });
         }
-    }
+    });
 
+    // Update the playlist display
     function updatePlaylist() {
-        playlist.innerHTML = '';
-        audioFiles.forEach((file, index) => {
-            const option = document.createElement('option');
-            option.value = URL.createObjectURL(file);
-            option.textContent = file.name;
-            playlist.appendChild(option);
-        });
-        if (audioFiles.length > 0) {
-            playlist.selectedIndex = 0;
-            playCurrentTrack();
+        playlist.innerHTML = playlistSongs.map((song, index) => 
+            `<div class="playlist-item" data-index="${index}">
+                ${playlistSongs[index].split('/').pop()}
+            </div>`
+        ).join('');
+    }
+
+    // Play the next song in the playlist
+    function playNext() {
+        if (playlistSongs.length > 0) {
+            audio.src = playlistSongs[currentSongIndex];
+            audio.play();
+            updatePlaylistUI();
         }
     }
 
-    uploadBtn.addEventListener('click', () => {
-        fileInput.click();
+    // Event listener for play button
+    document.getElementById('play').addEventListener('click', () => {
+        audio.play();
     });
 
-    fileInput.addEventListener('change', (event) => {
-        audioFiles = Array.from(event.target.files);
-        updatePlaylist();
+    // Event listener for pause button
+    document.getElementById('pause').addEventListener('click', () => {
+        audio.pause();
     });
 
-    playlist.addEventListener('change', (event) => {
-        currentTrackIndex = playlist.selectedIndex;
-        playCurrentTrack();
-    });
-
-    playBtn.addEventListener('click', () => {
-        if (!audioContext) {
-            setupAudioContext();
-        }
-        playCurrentTrack();
-    });
-
-    pauseBtn.addEventListener('click', () => {
-        if (source) {
-            source.stop();
+    // Event listener for previous button
+    document.getElementById('previous').addEventListener('click', () => {
+        if (playlistSongs.length > 0) {
+            currentSongIndex = (currentSongIndex - 1 + playlistSongs.length) % playlistSongs.length;
+            playNext();
         }
     });
 
-    stopBtn.addEventListener('click', () => {
-        if (source) {
-            source.stop();
+    // Event listener for next button
+    document.getElementById('next').addEventListener('click', () => {
+        if (playlistSongs.length > 0) {
+            currentSongIndex = (currentSongIndex + 1) % playlistSongs.length;
+            playNext();
         }
     });
 
-    prevBtn.addEventListener('click', () => {
-        if (audioFiles.length > 0) {
-            currentTrackIndex = (currentTrackIndex - 1 + audioFiles.length) % audioFiles.length;
-            playlist.selectedIndex = currentTrackIndex;
-            playCurrentTrack();
+    // Event listener for restart button
+    document.getElementById('restart').addEventListener('click', () => {
+        audio.currentTime = 0;
+    });
+
+    // Event listener for progress bar
+    document.getElementById('progress').addEventListener('input', (event) => {
+        audio.currentTime = (event.target.value / 100) * audio.duration;
+    });
+
+    audio.addEventListener('timeupdate', () => {
+        document.getElementById('progress').value = (audio.currentTime / audio.duration) * 100;
+        document.getElementById('current-time').textContent = formatTime(audio.currentTime);
+        document.getElementById('duration').textContent = formatTime(audio.duration);
+    });
+
+    audio.addEventListener('ended', () => {
+        if (document.getElementById('play-next').checked) {
+            currentSongIndex = (currentSongIndex + 1) % playlistSongs.length;
+            playNext();
         }
     });
 
-    nextBtn.addEventListener('click', () => {
-        if (audioFiles.length > 0) {
-            currentTrackIndex = (currentTrackIndex + 1) % audioFiles.length;
-            playlist.selectedIndex = currentTrackIndex;
-            playCurrentTrack();
-        }
+    // Event listeners for effect controls
+    document.getElementById('bass').addEventListener('input', (event) => {
+        bass.gain.setValueAtTime(event.target.value, context.currentTime);
     });
 
-    volumeSlider.addEventListener('input', (event) => {
-        if (gainNode) {
-            gainNode.gain.value = event.target.value;
-        }
+    document.getElementById('mid').addEventListener('input', (event) => {
+        mid.gain.setValueAtTime(event.target.value, context.currentTime);
     });
 
-    bassSlider.addEventListener('input', (event) => {
-        if (bassFilter) {
-            bassFilter.gain.value = event.target.value;
-        }
+    document.getElementById('treble').addEventListener('input', (event) => {
+        treble.gain.setValueAtTime(event.target.value, context.currentTime);
     });
 
-    midSlider.addEventListener('input', (event) => {
-        if (midFilter) {
-            midFilter.gain.value = event.target.value;
-        }
+    document.getElementById('volume').addEventListener('input', (event) => {
+        gainNode.gain.setValueAtTime(event.target.value, context.currentTime);
     });
 
-    trebSlider.addEventListener('input', (event) => {
-        if (trebleFilter) {
-            trebleFilter.gain.value = event.target.value;
-        }
-    });
+    // Helper function to format time
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    // Update the playlist UI
+    function updatePlaylistUI() {
+        document.querySelectorAll('.playlist-item').forEach(item => {
+            item.style.backgroundColor = item.dataset.index == currentSongIndex ? '#ffb6c1' : '#fff';
+        });
+    }
+
+    // Initial setup
+    updatePlaylist();
 });
