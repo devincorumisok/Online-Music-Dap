@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bass = context.createBiquadFilter();
     const mid = context.createBiquadFilter();
     const treble = context.createBiquadFilter();
+    const lowMid = context.createBiquadFilter(); // New filter for low mid
 
     // Initialize filter nodes
     bass.type = 'lowshelf';
@@ -25,9 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
     treble.frequency.setValueAtTime(3000, context.currentTime);
     treble.gain.setValueAtTime(0, context.currentTime);
 
+    lowMid.type = 'peaking'; // Set type to peaking filter
+    lowMid.frequency.setValueAtTime(500, context.currentTime); // Frequency for low mid
+    lowMid.gain.setValueAtTime(0, context.currentTime); // Initial gain
+
     // Connect the audio graph
     source.connect(bass);
-    bass.connect(mid);
+    bass.connect(lowMid); // Connect bass to low mid
+    lowMid.connect(mid); // Connect low mid to mid
     mid.connect(treble);
     treble.connect(gainNode);
     gainNode.connect(context.destination);
@@ -152,6 +158,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 playlistSongs.push(fileURL);
                 songNames.push(file.name);
             });
+            // Sort songs by their numeric prefix
+            sortPlaylist();
             updatePlaylist();
             if (playlistSongs.length > 0) {
                 if (audio.src === '') {
@@ -166,6 +174,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    function sortPlaylist() {
+        const items = playlistSongs.map((song, index) => ({ song, name: songNames[index] }));
+        items.sort((a, b) => {
+            const aIndex = extractIndex(a.name);
+            const bIndex = extractIndex(b.name);
+            return aIndex - bIndex;
+        });
+        playlistSongs = items.map(item => item.song);
+        songNames = items.map(item => item.name);
+    }
+
+    function extractIndex(name) {
+        const match = name.match(/^(\d+)\s/);
+        return match ? parseInt(match[1], 10) : Number.MAX_SAFE_INTEGER; // If no number prefix, place at the end
+    }
 
     document.getElementById('play-pause').addEventListener('click', () => {
         if (audio.paused) {
@@ -218,6 +242,10 @@ document.addEventListener('DOMContentLoaded', () => {
         treble.gain.setValueAtTime(e.target.value, context.currentTime);
     });
 
+    document.getElementById('low-mid').addEventListener('input', (e) => { // New slider
+        lowMid.gain.setValueAtTime(e.target.value, context.currentTime);
+    });
+
     document.getElementById('play-random').addEventListener('change', (e) => {
         toggleCheckbox(e.target);
     });
@@ -250,13 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ensure the `next` button respects the play-random and play-next settings
     audio.addEventListener('ended', () => {
         if (playNext || isRandomPlaying) {
-            if (isRandomPlaying) {
-                // Play a random song when the current song ends
-                playNextSong();
-            } else if (playNext) {
-                // Play the next song when the current song ends
-                playNextSong();
-            }
+            playNextSong();
         }
     });
 });
